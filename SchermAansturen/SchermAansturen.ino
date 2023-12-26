@@ -22,6 +22,7 @@ int currentSensorState;
 
 void setup() {
   Serial.begin(9600);
+  
 
   if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
     Serial.println(F("SSD1306 allocation failed"));
@@ -34,6 +35,38 @@ void setup() {
   delay(1000);
 
   currentSensorState = digitalRead(SENSOR_PIN);
+
+  //Startup process
+  display.setCursor(10,5);             // Start at top-left corner
+  display.setTextColor(SSD1306_WHITE);        // Draw white text
+  display.println("Welcome");
+  display.display();
+  delay(1000);
+  display.clearDisplay();
+  display.setCursor(10,5);             // Start at top-left corner
+  display.setTextColor(SSD1306_WHITE);        // Draw white text
+  display.print("Starting up");
+  display.display();
+  for(int16_t i = 0; i < 8; i++){
+    display.print(".");
+    display.display();
+    delay(20);
+  }
+  delay(2000);
+  display.clearDisplay();
+  for(int16_t i=0; i<max(display.width(),display.height())/2; i+=2) {
+    display.drawCircle(display.width()/2, display.height()/2, i, SSD1306_WHITE);
+    display.display();
+    delay(20);
+  }
+  delay(1000);
+  for(int16_t i=0; i<max(display.width(),display.height())/2; i+=2) {
+    display.drawCircle(display.width()/2, display.height()/2, i, SSD1306_BLACK);
+    display.display();
+    delay(20);
+  }
+  display.clearDisplay();
+
 }
 
 void loop() {
@@ -49,15 +82,17 @@ void loop() {
     digitalWrite(LED_PIN, ledState);
     if(ledState == HIGH) {
       display.clearDisplay();
+      display.setCursor(10,5);             // Start at top-left corner
       display.setTextColor(SSD1306_WHITE);        // Draw white text
-      display.setCursor(0,0);             // Start at top-left corner
       display.println("Light: On");
+      display.fillCircle(3, 8, 3, SSD1306_WHITE);
       display.display();
     }else {
       display.clearDisplay();
+      display.setCursor(10,5);             // Start at top-left corner
       display.setTextColor(SSD1306_WHITE);        // Draw white text
-      display.setCursor(0,0);             // Start at top-left corner
       display.println("Light: Off");
+      display.drawCircle(3, 8, 3, SSD1306_WHITE);
       display.display();
     }
     
