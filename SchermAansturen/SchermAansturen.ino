@@ -12,8 +12,12 @@
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 int const SENSOR_PIN = 7;
+int const LED_PIN = 3;
 boolean objectDetect = false;
 
+int ledState = LOW;     // the current state of LED
+int lastSensorState;    // the previous state of button
+int currentSensorState;
 
 
 void setup() {
@@ -24,44 +28,44 @@ void setup() {
     for(;;); // Don't proceed, loop forever
   }
   display.clearDisplay();
+
+  pinMode(LED_PIN, OUTPUT);
   pinMode (SENSOR_PIN, INPUT); 
   delay(1000);
 
-
+  currentSensorState = digitalRead(SENSOR_PIN);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
+  lastSensorState    = currentSensorState;      // save the last state
+  currentSensorState = digitalRead(SENSOR_PIN); // read new state
 
-  if ( digitalRead( SENSOR_PIN))        // If detector Output is HIGH, there is no object
-  {
-    display.clearDisplay();
-    if (objectDetect == true) {         // If we had previously detected an object
-      objectDetect = false;
-      delay(10);
-      display.setTextSize(1);             // Normal 1:1 pixel scale
+  if(lastSensorState == HIGH && currentSensorState == LOW) {
+    Serial.println("Motion detected!");
+    // toggle state of LED
+    ledState = !ledState;
+    
+    digitalWrite(LED_PIN, ledState);
+    if(ledState == HIGH) {
+      display.clearDisplay();
       display.setTextColor(SSD1306_WHITE);        // Draw white text
       display.setCursor(0,0);             // Start at top-left corner
-      display.println(F("Clear!"));
+      display.println("Light: On");
       display.display();
-        
+    }else {
+      display.clearDisplay();
+      display.setTextColor(SSD1306_WHITE);        // Draw white text
+      display.setCursor(0,0);             // Start at top-left corner
+      display.println("Light: Off");
+      display.display();
     }
+    
   }
-  else                                      // If the Output is LOW, there is an object detected
-  {
-    display.clearDisplay();
-    objectDetect = true;                    // Set flag
-    delay(10);
-    display.setTextSize(1);             // Normal 1:1 pixel scale
-    display.setTextColor(SSD1306_WHITE);        // Draw white text
-    display.setCursor(0,0);             // Start at top-left corner
-    display.println(F("Object Detected!"));
-    Serial.println("Object Detected");      // Also send detection to the serial monitor window
-    display.display();
-  }
-  delay(1000);
-
+  delay(400);
 }
+
+  
 
 
 void testdrawcircle(void) {
