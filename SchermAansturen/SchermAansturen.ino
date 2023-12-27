@@ -37,33 +37,35 @@ void setup() {
   currentSensorState = digitalRead(SENSOR_PIN);
 
   //Startup process
-  display.setCursor(10,5);             // Start at top-left corner
+  display.setTextSize(1.5);
+  display.setCursor(32,32);             // Start at top-left corner
   display.setTextColor(SSD1306_WHITE);        // Draw white text
   display.println("Welcome");
   display.display();
-  delay(1000);
+  delay(2000);
   display.clearDisplay();
-  display.setCursor(10,5);             // Start at top-left corner
+  display.setTextSize(1.5);
+  display.setCursor(10,32);             // Start at top-left corner
   display.setTextColor(SSD1306_WHITE);        // Draw white text
   display.print("Starting up");
   display.display();
-  for(int16_t i = 0; i < 8; i++){
+  for(int16_t i = 0; i < 7; i++){ //Zorgt er voor dat de stipjes achter Starting up komen
     display.print(".");
     display.display();
-    delay(20);
+    delay(150);
   }
   delay(2000);
   display.clearDisplay();
   for(int16_t i=0; i<max(display.width(),display.height())/2; i+=2) {
     display.drawCircle(display.width()/2, display.height()/2, i, SSD1306_WHITE);
     display.display();
-    delay(20);
+    delay(80);
   }
   delay(1000);
   for(int16_t i=0; i<max(display.width(),display.height())/2; i+=2) {
     display.drawCircle(display.width()/2, display.height()/2, i, SSD1306_BLACK);
     display.display();
-    delay(20);
+    delay(80);
   }
   display.clearDisplay();
 
