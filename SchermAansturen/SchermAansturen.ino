@@ -21,7 +21,6 @@ int ledState = LOW; // De huidige status van de ledlamp
 int lastSensorState; // De vorige status van de bewegings sensor
 int currentSensorState; // De huidige status van de bewegings sensor
 
-
 #define SCREEN_WIDTH 128 // OLED scherm breedte, in pixels
 #define SCREEN_HEIGHT 64 // OLED scherm hoogte, in pixels
 #define OLED_RESET     -1 
@@ -30,7 +29,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 void setup() {
   Serial.begin(9600);
-  
+
   pinMode(LED_PIN, OUTPUT); // Led licht wordt als output aangegeven 
   pinMode (SENSOR_PIN, INPUT); // Motionsensor wordt als input aangegeven
   currentSensorState = digitalRead(SENSOR_PIN); // Huidige sensor status wordt opgehaald door het lezen van de bewegings sensor
@@ -40,7 +39,7 @@ void setup() {
     for(;;); 
   }
   
-  // Hier probeert hij connect te maken met de mqtt server
+  // Hier probeert hij connectie te maken met de WiFi 
   while (WiFi.begin(SSID, PASS) != WL_CONNECTED){
   delay(5000);
 }  
@@ -70,25 +69,25 @@ while (!MQTTconnected) {
 }
 
 void loop() {
+
   lastSensorState    = currentSensorState;      // Slaat de laatste status op
   currentSensorState = digitalRead(SENSOR_PIN); // Leest de nieuwe status
   mqttClient.poll();
 
   if(lastSensorState == HIGH && currentSensorState == LOW) {
-    Serial.println("Motion detected!");
-    // toggle state of LED
-    ledState = !ledState;
+    Serial.println("Motion detected!"); // Print naar serial dat er een motion detected is 
+    ledState = !ledState; // schakeld de status van de led 
     
     digitalWrite(LED_PIN, ledState);
     if(ledState == HIGH) {
       display.clearDisplay();
       text(1, 10, 5, 1, "Light: On"); // voert de functie uit die tekst op het scherm zet
-      display.fillCircle(3, 8, 3, SSD1306_WHITE); // Maakt een balletje voor de tekst 
+      display.fillCircle(3, 8, 3, SSD1306_WHITE); // Maakt een wit balletje voor de tekst 
       display.display();
 
-      //For HueAPI
+      // Voert de functie uit om te communiceren met de HUE api. Geeft de waarde true mee wat de licht status aanpast
       controlHueLamp(true);
-      //Sending message to MQTT
+      // Stuurt bericht naar MQTT
       mqttClient.beginMessage(publishTopic,true,0);
       mqttClient.print(ledState);
       mqttClient.endMessage();
@@ -96,10 +95,10 @@ void loop() {
     }else {
       display.clearDisplay();
       text(1, 10, 5, 1, "Light: Off"); // Voert de functie uit die tekst op het scherm zet
-      display.drawCircle(3, 8, 3, SSD1306_WHITE);
+      display.drawCircle(3, 8, 3, SSD1306_WHITE); // Zet een witte circle voor de tekst
       display.display();
 
-      //For HueAPI
+      // Voert de functie uit om te communiceren met de HUE api. geeft de waarde false mee wat de licht status aanpast
       controlHueLamp(false);
       //Sending message to MQTT
       mqttClient.beginMessage(publishTopic,true,0);
@@ -111,7 +110,7 @@ void loop() {
   delay(200);
 } 
 
-
+// Hier onder staan alle functies voor dit project.
 
 //Receives an MQTT message
 void onMqttMessage(int messageSize) {
@@ -137,7 +136,7 @@ void controlHueLamp(bool turnOn) { //deze functie zorgt voor de communicatie naa
 
   // Voer de PUT-aanvraag uit
   http.beginRequest();
-  http.put(url.c_str(), "application/json", body.c_str());
+  http.put(url.c_str(), "application/json", body.c_str()); //Hier plakt hij de url samen en geeft hij een put bericht mee om de status van het licht te veranderen
   http.endRequest();
 
   // Lees het antwoord van de server
@@ -184,7 +183,7 @@ void Startup(){ //hier zie je het opstart process van het scherm
 }
 
 void dots(int16_t amountDots, int16_t Delay){
-    for(int16_t i = 0; i < amountDots; i++){ //Zorgt er voor dat de stipjes achter Starting up komen
+    for(int16_t i = 0; i < amountDots; i++){ //Zorgt er voor dat de stipjes achter een woord komen
     display.print(".");
     display.display();
     delay(Delay);
