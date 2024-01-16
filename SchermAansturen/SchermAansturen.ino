@@ -52,7 +52,7 @@ mqttClient.setUsernamePassword(MQTTUsername, MQTTPassword); // Geeft login gegev
 while (!MQTTconnected) {
   if (!mqttClient.connect(MQTTURL, MQTTPort)){
   Serial.println("Connecting to MQTT....."); // Print naar serial dat hij aan het verbinden is. 
-  text(1, 10, 32, 1, "Connecting to MQTT ") // Print tekst naar scherm
+  text(1, 10, 32, 1, "Connecting to MQTT "); // Print tekst naar scherm
   dots(7, 80); //Plaatst 7 punten met een delay van 80 achter de tekst
   delay(200);
   display.clearDisplay();
@@ -82,8 +82,8 @@ void loop() {
     digitalWrite(LED_PIN, ledState);
     if(ledState == HIGH) {
       display.clearDisplay();
-      text(1, 10, 5, 1, "Light: On"); // voert de functie uit die tekst op het scherm zet
-      display.fillCircle(3, 8, 3, SSD1306_WHITE); // Maakt een balletje voor de tekst 
+      text(1, 10, 32, 1, "Light: On"); // voert de functie uit die tekst op het scherm zet
+      display.fillCircle(3, 35, 3, SSD1306_WHITE); // Maakt een balletje voor de tekst 
       display.display();
 
       //For HueAPI
@@ -95,8 +95,8 @@ void loop() {
 
     }else {
       display.clearDisplay();
-      text(1, 10, 5, 1, "Light: Off"); // Voert de functie uit die tekst op het scherm zet
-      display.drawCircle(3, 8, 3, SSD1306_WHITE);
+      text(1, 10, 32, 1, "Light: Off"); // Voert de functie uit die tekst op het scherm zet
+      display.drawCircle(3, 35, 3, SSD1306_WHITE);
       display.display();
 
       //For HueAPI
@@ -169,7 +169,7 @@ void text(float Textsize, int X, int Y, int Colour, char* Text){ //Deze functie 
 }
 
 void Startup(){ //hier zie je het opstart process van het scherm
-  text(2, 32, 32, 1 ,"Welcome");
+  text(1.5, 10, 32, 1 ,"Welcome");
   delay(2000);
   display.clearDisplay();
   text(1.5, 10, 32, 1, "Starting up");
