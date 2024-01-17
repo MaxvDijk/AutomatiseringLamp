@@ -16,21 +16,19 @@ HttpClient http = HttpClient(wifiClient, IPBridge, HuePort);
 const char publishTopic[] = "Max/lightStatus";  // Hier wordt de topic gedefinieerd waarnaartoe ge published wordt
 const char subscribeTopic[] = "Max/lightStatus"; // Hier wordt gesubscribed op een top
 int const SENSOR_PIN = 7;  // Bewegings sensor pin wordt gedefinieerd 
-int const LED_PIN = 3; // Led lamp pin wordt gedefinieerd
-int ledState = LOW; // De huidige status van de ledlamp
+int onOff = LOW; // Deze variabel zorgt ervoor dat het signaal een lever switch wordt 
 int lastSensorState; // De vorige status van de bewegings sensor
 int currentSensorState; // De huidige status van de bewegings sensor
 
 #define SCREEN_WIDTH 128 // OLED scherm breedte, in pixels
 #define SCREEN_HEIGHT 64 // OLED scherm hoogte, in pixels
-#define OLED_RESET     -1 
+#define OLED_RESET     -1  // Reset pin
 #define SCREEN_ADDRESS 0x3c // scherm adress
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 void setup() {
   Serial.begin(9600);
 
-  pinMode(LED_PIN, OUTPUT); // Led licht wordt als output aangegeven 
   pinMode (SENSOR_PIN, INPUT); // Motionsensor wordt als input aangegeven
   currentSensorState = digitalRead(SENSOR_PIN); // Huidige sensor status wordt opgehaald door het lezen van de bewegings sensor
 
@@ -76,10 +74,9 @@ void loop() {
 
   if(lastSensorState == HIGH && currentSensorState == LOW) {
     Serial.println("Motion detected!"); // Print naar serial dat er een motion detected is 
-    ledState = !ledState; // schakeld de status van de led 
-    
-    digitalWrite(LED_PIN, ledState);
-    if(ledState == HIGH) {
+    onOff = !onOff; // schakeld de status van de led 
+
+    if(onOff == HIGH) {
       display.clearDisplay();
       text(1, 10, 32, 1, "Light: On"); // voert de functie uit die tekst op het scherm zet
       display.fillCircle(3, 35, 3, SSD1306_WHITE); // Maakt een balletje voor de tekst 
@@ -89,7 +86,7 @@ void loop() {
       controlHueLamp(true);
       // Stuurt bericht naar MQTT
       mqttClient.beginMessage(publishTopic,true,0);
-      mqttClient.print(ledState);
+      mqttClient.print(onOff);
       mqttClient.endMessage();
 
     }else {
@@ -102,7 +99,7 @@ void loop() {
       controlHueLamp(false);
       //Sending message to MQTT
       mqttClient.beginMessage(publishTopic,true,0);
-      mqttClient.print(ledState);
+      mqttClient.print(onOff);
       mqttClient.endMessage();
     }
     
@@ -112,21 +109,19 @@ void loop() {
 
 // Hier onder staan alle functies voor dit project.
 
-//Receives an MQTT message
+//Het ontvangen van een MQTT bericht
 void onMqttMessage(int messageSize) {
   Serial.print("Received a message with topic '");
   Serial.println(mqttClient.messageTopic());
   String message = "";
 
-while (mqttClient.available()) {
-  message.concat((char)mqttClient.read());
-}
-  Serial.println(message);
+  while (mqttClient.available()) {
+    message.concat((char)mqttClient.read());
+  }
   if (message == "HIGH")
-    Serial.println(message);
+    Serial.println("Licht status: " + message);
   else
-    Serial.println(message);
-
+    Serial.println("Licht status: " + message);
 }
 
 void controlHueLamp(bool turnOn) { //deze functie zorgt voor de communicatie naar de API
